@@ -69,10 +69,11 @@ def get_last_version(skip_tags=None) -> Optional[str]:
         return tag.commit.committed_date
 
     for i in sorted(repo.tags, reverse=True, key=version_finder):
-        if re.match(r"v\d+\.\d+\.\d+", i.name):  # Matches vX.X.X
+        m = re.match(r"(v?)(\d+\.\d+\.\d+)", i.name) # work on versions without 'v' prefix
+        if m:  # Matches vX.X.X
             if i.name in skip_tags:
                 continue
-            return i.name[1:]  # Strip off 'v'
+            return m[2] # Strip off 'v' if present
 
     return None
 
@@ -165,6 +166,7 @@ def update_changelog_file(version: str, content_to_add: str):
     changelog_file = config.get("changelog_file")
     changelog_placeholder = config.get("changelog_placeholder")
     git_path = Path(os.getcwd(), changelog_file)
+    prefix = 'v' if config.get('legacy_prefix') else ''
     if not git_path.exists():
         original_content = f"# Changelog\n\n{changelog_placeholder}\n"
         logger.warning(f"Changelog file not found: {git_path} - creating it.")
@@ -184,7 +186,7 @@ def update_changelog_file(version: str, content_to_add: str):
             [
                 changelog_placeholder,
                 "",
-                f"## v{version} ({date.today():%Y-%m-%d})",
+                f"## {prefix}{version} ({date.today():%Y-%m-%d})",
                 content_to_add,
             ]
         ),
@@ -201,7 +203,8 @@ def tag_new_version(version: str):
 
     :param version: The version number used in the tag as a string.
     """
-    return repo.git.tag("-a", f"v{version}", m=f"v{version}")
+    prefix = 'v' if config.get('legacy_prefix') else ''
+    return repo.git.tag("-a", f"{prefix}{version}", m=f"{prefix}{version}")
 
 
 @check_repo

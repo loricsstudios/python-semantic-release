@@ -1,4 +1,4 @@
-from semantic_release.dist import build_dists, should_build, should_remove_dist
+from semantic_release.dist import build_dists, should_build, should_remove_dist, remove_dists
 
 from . import pytest
 
@@ -103,3 +103,8 @@ def test_should_build(config, expected, mocker):
 def test_should_remove_dist(config, expected, mocker):
     mocker.patch("semantic_release.cli.config.get", lambda key: config.get(key))
     assert should_remove_dist() == expected
+
+def test_remove_dists(mocker):
+    mock_rmtree = mocker.patch("semantic_release.dist.shutil.rmtree")
+    remove_dists('somepath')
+    mock_rmtree.assert_called_once_with('somepath', ignore_errors=True)

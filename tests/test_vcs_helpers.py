@@ -217,6 +217,7 @@ def test_checkout_should_checkout_correct_branch(mock_git):
     mock_git.checkout.assert_called_once_with("a-branch")
 
 
+#TODO cover both execution paths with legacy or without
 @pytest.mark.parametrize(
     "skip_tags,expected_result",
     [
@@ -225,6 +226,7 @@ def test_checkout_should_checkout_correct_branch(mock_git):
         (["v0.1.0", "v1.0.0", "v1.1.0", "v2.0.0"], None),
     ],
 )
+
 def test_get_last_version(skip_tags, expected_result):
     class FakeCommit:
         def __init__(self, com_date):
@@ -255,7 +257,7 @@ def test_get_last_version(skip_tags, expected_result):
     )
     assert expected_result == get_last_version(skip_tags)
 
-
+#TODO cover both execution paths with legacy or without
 @pytest.mark.parametrize(
     "tag_name,expected_version",
     [
@@ -284,7 +286,7 @@ def test_get_version_from_tag(tag_name, expected_version):
     )
     assert expected_version == get_version_from_tag(tag_name)
 
-
+#TODO cover both execution paths with legacy or without
 def test_update_changelog_file_ok(mock_git, mocker):
     initial_content = (
         "# Changelog\n"
@@ -323,7 +325,7 @@ def test_update_changelog_file_ok(mock_git, mocker):
     )
     mocked_write_text.assert_called_once_with(expected_content_str)
 
-
+#TODO cover both execution paths with legacy or without
 def test_update_changelog_file_missing_file(mock_git, mocker):
     mocker.patch("semantic_release.vcs_helpers.Path.exists", return_value=False)
     mocked_read_text = mocker.patch("semantic_release.vcs_helpers.Path.read_text")
